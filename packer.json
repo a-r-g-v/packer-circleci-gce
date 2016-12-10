@@ -1,0 +1,21 @@
+{
+  "builders": [{
+    "type": "googlecompute",
+    "account_file": "client-secret.json",
+    "project_id": "argvc-jp",
+    "source_image": "debian-8-jessie-v20161129",
+    "zone": "asia-northeast1-a",
+    "ssh_username": "packer",
+    "image_family": "openresty",
+    "image_name": "openresty-{{uuid}}"
+  }], 
+  "provisioners": [
+  {
+    "type": "shell",
+    "execute_command": "sudo {{.Path}}",
+    "scripts": [
+      "openresty.sh"
+    ]
+  }
+  ]
+}

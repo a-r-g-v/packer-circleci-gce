@@ -4,25 +4,27 @@ machine:
     CLOUDSDK_COMPUTE_ZONE: "asia-northeast1-a"
     CLOUDSDK_COMPUTE_REGION: "asia-northeast1"
     GOOGLE_APPLICATION_CREDENTIALS: "$HOME/client-secret.json"
-  dependencies:
-    cache_directories:
-      - "~/packer"
-    pre:
-      - mkdir -p ~/packer
-      - cd ~/packer
-      - wget https://releases.hashicorp.com/packer/0.12.0/packer_0.12.0_linux_amd64.zip
-      - unzip packer_0.12.0_linux_amd64.zip
+  post:
+    - echo $CLIENT_KEYS | base64 --decode > $GOOGLE_APPLICATION_CREDENTIALS
+
+dependencies:
+  cache_directories:
+    - "~/bin"
+  pre:
+    - mkdir -p ~/packer
+    - wget https://releases.hashicorp.com/packer/0.12.0/packer_0.12.0_linux_amd64.zip
+    - unzip packer_0.12.0_linux_amd64.zip
+    - mv packer ~/bin/packer
 
 test:
   override:
-    - ~/packer/packer validate ./packer.json
+    - ~/bin/packer validate ./packer.json
 
 deployment:
   packer:
     branch: master 
     commands:
-      - echo $CLIENT_KEYS | base64 --decode > $GOOGLE_APPLICATION_CREDENTIALS
       - gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
       - gcloud config set project $GCLOUD_PROJECT
-      - ~/packer/packer build ./packer.json
+      - ~/bin/packer build ./packer.json
 
